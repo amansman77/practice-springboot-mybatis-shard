@@ -1,13 +1,18 @@
 package com.ho.practice.shardmybatis.common.datasource;
 
 
+import com.ho.practice.shardmybatis.common.annotation.ShardKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.SoftException;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+
+import java.lang.annotation.Annotation;
 
 @Slf4j
 @Aspect
@@ -21,8 +26,13 @@ public class RoutingMapperAspect {
     private void daoService() {
     }
 
-    @Around("daoService() && args(shardKey,..)")
-    public Object aroundTargetMethod(ProceedingJoinPoint thisJoinPoint, String shardKey) {
+    @Pointcut("execution(public * *(.., @com.ho.practice.shardmybatis.common.annotation.ShardKey (*), ..))")
+    private void shardKeyParameter() {
+    }
+
+    @Around("daoService() && shardKeyParameter()")
+    public Object aroundTargetMethod(ProceedingJoinPoint thisJoinPoint) {
+        String shardKey = this.getShardKey(thisJoinPoint);
         String routingDataSourceKey = determineRoutingDataSourceKey(shardKey);
         log.debug("Routing Key: " + routingDataSourceKey);
 
@@ -35,6 +45,28 @@ public class RoutingMapperAspect {
         } finally {
             DataSourceLookupKeyContextHolder.clear();
         }
+    }
+
+    private String getShardKey(ProceedingJoinPoint thisJoinPoint) {
+        MethodSignature signature = (MethodSignature) thisJoinPoint.getSignature();
+        String methodName = signature.getMethod().getName();
+        Class<?>[] parameterTypes = signature.getMethod().getParameterTypes();
+        Annotation[][] annotations;
+        try {
+            annotations = thisJoinPoint.getTarget().getClass().
+                    getMethod(methodName, parameterTypes).getParameterAnnotations();
+        } catch (Exception e) {
+            throw new SoftException(e);
+        }
+
+        for (int i = 0; i < annotations.length; i++) {
+            for (Annotation annotation : annotations[i]) {
+                if (annotation.annotationType() == ShardKey.class) {
+                    return (String) thisJoinPoint.getArgs()[i];
+                }
+            }
+        }
+        return null;
     }
 
     private String determineRoutingDataSourceKey(String inputId) {

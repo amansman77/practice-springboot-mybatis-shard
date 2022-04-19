@@ -29,7 +29,7 @@ public class ShardTestDaoService {
     }
 
     @Transactional(value = "postTransactionManager", isolation = Isolation.READ_COMMITTED)
-    public int insertDataRollback(String id, DataDto dataDto) {
+    public int insertDataRollback(@ShardKey String id, DataDto dataDto) {
         shardTestDAO.insertData(dataDto);
         throw new RuntimeException("강제 익셉션");
     }
