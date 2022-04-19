@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    post01:
+      name: post01DataSource
+      driverClassName: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3423/DB?autoReconnect=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+      username: name
+      password: password
+      connection-test-query: SELECT 1
+      pool:
+        min-pool-size: 5
+        max-pool-size: 10
+    post02:
+      name: post02DataSource
+      driverClassName: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3424/DB?autoReconnect=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+      username: name
+      password: password
+      connection-test-query: SELECT 1
+      pool:
+        min-pool-size: 5
+        max-pool-size: 10
+    post03:
+      name: post03DataSource
+      driverClassName: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3425/DB?autoReconnect=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+      username: name
+      password: password
+      connection-test-query: SELECT 1
+      pool:
+        min-pool-size: 5
+        max-pool-size: 10
+
+mybatis:
+  mapper-locations: mybatis/mapper/*.xml
