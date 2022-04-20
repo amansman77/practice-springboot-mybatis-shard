@@ -11,6 +11,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 
@@ -62,11 +63,17 @@ public class RoutingMapperAspect {
         for (int i = 0; i < annotations.length; i++) {
             for (Annotation annotation : annotations[i]) {
                 if (annotation.annotationType() == ShardKey.class) {
-                    return (String) thisJoinPoint.getArgs()[i];
+                    String shardKey = (String) thisJoinPoint.getArgs()[i];
+                    if (StringUtils.hasText(shardKey) && !"null".equalsIgnoreCase(shardKey)) {
+                        return (String) thisJoinPoint.getArgs()[i];
+                    }
+
+                    throw new IllegalArgumentException("Shardkey가 존재하지 않습니다.");
+
                 }
             }
         }
-        return null;
+        throw new IllegalArgumentException("Shardkey가 존재하지 않습니다.");
     }
 
     private String determineRoutingDataSourceKey(String inputId) {

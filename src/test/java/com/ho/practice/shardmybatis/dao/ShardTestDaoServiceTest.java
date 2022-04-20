@@ -2,7 +2,6 @@ package com.ho.practice.shardmybatis.dao;
 
 import com.ho.practice.shardmybatis.dto.DataDto;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("local")
 @ExtendWith(SpringExtension.class)
@@ -51,7 +50,7 @@ class ShardTestDAOServiceTest {
         assertEquals(1, insertCount);
     }
 
-    @Test
+//    @Test
     void selectReplyDetailPagingSeq() {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("mainSeq", mainSeq);
@@ -75,6 +74,36 @@ class ShardTestDAOServiceTest {
 
         Assertions.assertThrows(RuntimeException.class, () -> {
             shardTestDaoService.insertDataRollback(id, dataDto);
+        });
+    }
+
+//    @Test
+    void insertReply_null() {
+        DataDto dataDto = DataDto.builder()
+                .mainSeq(mainSeq)
+                .txt("호 추가 테스트 " + shardNumber)
+                .tid("ALG7NMAE")
+                .isDelete(0)
+                .isReport(0)
+                .build();
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            shardTestDaoService.insertData(null, dataDto);
+        });
+    }
+
+//    @Test
+    void insertReply_nullString() {
+        DataDto dataDto = DataDto.builder()
+                .mainSeq(mainSeq)
+                .txt("호 추가 테스트 " + shardNumber)
+                .tid("ALG7NMAE")
+                .isDelete(0)
+                .isReport(0)
+                .build();
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            shardTestDaoService.insertData("null", dataDto);
         });
     }
 }
